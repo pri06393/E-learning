@@ -1,12 +1,13 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 import enum
 #None = None  # Optional field with a default value of None(add using a pipeline)
 
 class Instructor(BaseModel):
-    
     I_name : str
     I_age : int
+    # I_name : str
+    # I_age : int
 class Courses(BaseModel):
     
     Course_name : str
@@ -43,20 +44,22 @@ class Question(BaseModel):
     Qs_points : int
     
     
-    
-class InstructorCreate(Instructor):
-    pass
+class CoursesRead(Courses):
+    C_id:int
+    class Config:
+        orm_mode:True   
+class InstructorCreate(BaseModel):
+    I_name : str
+    I_age : int
 class InstructorRead(Instructor):
     I_id:int
+    creator:List[Courses]   #remove the I_id field. it's redundant.
     class Config:
         orm_mode:True
 
 class CoursesCreate(Courses):
     pass
-class CoursesRead(Courses):
-    C_id:int
-    class Config:
-        orm_mode:True
+
         
 class ModulesCreate(Modules):
     pass
@@ -107,14 +110,23 @@ class Role(str, enum.Enum):
     Instructor = "Instructor"
     Student = "Student"       
 
+
+    
 class User(BaseModel):
+    name:str
+    email:str  
+    class Config:
+        orm_mode:True   
+        
+class UserCreate(User):
     name :str
     email:str
     password:str
-    role:Role
-    
-class UserRead(User):
+    role:Role 
+
+class UserListRead(User):
+    U_id:int
     name:str
     email:str
     class Config:
-        orm_mode:True    
+        orm_mode:True 
