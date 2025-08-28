@@ -56,6 +56,7 @@ class Students(Base):
     S_name = Column(String)
     S_age = Column(Integer)
     student_enrollment = relationship("Enrollment", back_populates="enrollment_student")
+    student_studentans = relationship("StudentAnswer", back_populates="studentans_student")
 class Results(Base):
     __tablename__ = "Results"
     Rs_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -67,17 +68,39 @@ class Results(Base):
 class Quiz(Base):
     __tablename__ = "Quiz"
     Q_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    Quiz_name = Column(String, unique = True, index = True)
-    M_id = Column(Integer, ForeignKey("Modules.M_id"))
+    Quiz_name = Column(String)
+    # M_id = Column(Integer, ForeignKey("Modules.M_id"))
     quiz_result = relationship("Results", back_populates="result_quiz")
+    quiz_question = relationship("Question", back_populates="question_quiz")
+    quiz_studentans = relationship("StudentAnswer", back_populates="studentans_quiz")
+    
 
 class Question(Base):
     __tablename__ = "Question"
     Qs_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    Q_id = Column(Integer, ForeignKey(Quiz.Q_id))
     Qs = Column(String, unique = True, index = True)
     Qs_points = Column(Integer, unique = True, index = True)
     question_result = relationship("Results", back_populates="result_question")
-    
+    option_a = Column(String, nullable=False)
+    option_b = Column(String, nullable=False)
+    option_c = Column(String, nullable=False)
+    option_d = Column(String, nullable=False)
+    correct_option = Column(String, nullable=False)  
+    question_quiz = relationship("Quiz", back_populates= "quiz_question")
+    question_studentans = relationship("StudentAnswer", back_populates="studentans_question")
+class StudentAnswer(Base):
+    __tablename__ = "student_answers"
+    id = Column(Integer, primary_key= True, index= True) 
+    S_id = Column(Integer, ForeignKey("Students.S_id")) 
+    U_id = Column(Integer, ForeignKey("Users.U_id"))
+    Q_id = Column(Integer, ForeignKey("Quiz.Q_id"))
+    Qs_id = Column(Integer, ForeignKey("Question.Qs_id"))
+    selected_option = Column(String)
+    is_correct = Column(Integer)
+    studentans_student = relationship("Students", back_populates="student_studentans")
+    studentans_quiz = relationship("Quiz", back_populates="quiz_studentans")
+    studentans_question = relationship("Question", back_populates="question_studentans")
 class Role(str, enum.Enum):
     Instructor = "Instructor"
     Student = "Student"
@@ -90,6 +113,7 @@ class User(Base):
     password = Column(String)
     role = Column(Enum(Role), nullable = False, default=Role.Student)
     
+
 
 
 
