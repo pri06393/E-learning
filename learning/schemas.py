@@ -53,7 +53,7 @@ class InstructorCreate(BaseModel):
     I_age : int
 class InstructorRead(Instructor):
     I_id:int
-    creator:List[Courses]   #remove the I_id field. it's redundant.
+    creator:List[Courses]   #remove the I_id field later
     class Config:
         orm_mode:True
 
@@ -135,7 +135,7 @@ class StudentAnswer(BaseModel):
 class QuizRead(BaseModel):
     Q_id:int
     Quiz_name: str
-    quiz_question : List[QuestionRead]    
+    quiz_question : List[QuestionRead]    #this is fetched while appearing for a test
     class Config:
         orm_mode:True  
 # class QuestionRead(Question):
@@ -193,3 +193,6 @@ class Token(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     passwod:str
+
+
+
