@@ -13,10 +13,7 @@ class Courses(BaseModel):
     Course_name : str
     I_id : int
     Course_duration : int
-class Modules(BaseModel):
-    
-    C_id : int
-    Module_name : str
+
 class Enrollment(BaseModel):
     
     C_id : int
@@ -43,9 +40,26 @@ class Question(BaseModel):
     Qs : str
     Qs_points : int
     
+class ModulesCreate(BaseModel):
+    C_id: int
     
-class CoursesRead(Courses):
+    Module_name:str
+    
+    class Config:
+        orm_mode:True
+            
+class ModulesCourseRead(ModulesCreate):
+    M_id:int
+    
+    class Config:
+        orm_mode:True
+        
+
+class CoursesRead(BaseModel):
+    Course_name:str
+    Course_duration:int
     C_id:int
+    course_module: List[ModulesCourseRead]
     class Config:
         orm_mode:True   
 class InstructorCreate(BaseModel):
@@ -60,9 +74,12 @@ class InstructorRead(Instructor):
 class CoursesCreate(Courses):
     pass
 
-        
-class ModulesCreate(Modules):
-    pass
+class Modules(BaseModel):
+    
+    C_id : int
+    Module_name : str
+           
+
 class ModulesRead(Modules):
     M_id:int
     class Config:
@@ -134,6 +151,7 @@ class StudentAnswer(BaseModel):
     
 class QuizRead(BaseModel):
     Q_id:int
+   # C_id:int
     Quiz_name: str
     quiz_question : List[QuestionRead]    #this is fetched while appearing for a test
     class Config:
@@ -142,7 +160,19 @@ class QuizRead(BaseModel):
 #     Qs_id:int
 #     class Config:
 #         orm_mode:True
- 
+
+class QuizModuleRead(BaseModel):
+    Q_id:int
+   # C_id:int
+    Quiz_name: str
+        #this is fetched while appearing for a test
+    class Config:
+        orm_mode:True 
+class ModulesQuizRead(ModulesCreate):
+    M_id:int
+    quiz: List[QuizModuleRead]
+    class Config:
+        orm_mode:True
 class Role(str, enum.Enum):
     Instructor = "Instructor"
     Student = "Student"       

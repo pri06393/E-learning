@@ -4,6 +4,7 @@ from learning import schemas, database, auth, models
 from learning.repository import courses as course_repo
 from learning.auth import oauth2_scheme
 router = APIRouter(prefix="/courses", tags=["Courses"])
+
 @router.post("/", response_model=schemas.CoursesRead)
 def create_course( course: schemas.Courses, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.role_required("Instructor"))):
     return course_repo.create_course(course, db)

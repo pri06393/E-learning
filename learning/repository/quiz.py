@@ -3,7 +3,7 @@ from learning import models, schemas,  database
 from fastapi import Depends
 from typing import List
    #give access to instructor
-def Quiz_create(quiz:schemas.QuizCreate,db:Session = Depends(database.get_db)):
+def Quiz_create(quiz:schemas.QuizCreate,db:Session):
     new_quiz = models.Quiz( Quiz_name = quiz.Quiz_name )
     db.add(new_quiz)
     db.commit()
@@ -25,24 +25,16 @@ def Quiz_create(quiz:schemas.QuizCreate,db:Session = Depends(database.get_db)):
     return new_quiz
 
 
-def Quiz_read(Q_id:int,db: Session = Depends(database.get_db)):
+def Quiz_read(Q_id:int,db:Session):
     get_quiz = db.query(models.Quiz).filter(models.Quiz.Q_id == Q_id).first()
     return get_quiz
 
-# @app.post('enrollment/reviews')
-# #registration
-# def Review_create(review:schemas.ReviewCreate,db:Session = Depends(database.get_db)):
-#     new_Review = models.Reviews(Rating =review.Rating, Rating = review.Rating, review = review.review, E_id = review.E_id)
-#     db.add(new_Review)
-#     db.commit()
-#     db.refresh(new_Review)
-#     return new_Review
 
-def Quiz_read_list(Q_id:int,db: Session = Depends(database.get_db)):
-    get_quiz = db.query(models.Quiz).all()
-    return get_quiz
 
-def submit_quiz(Q_id: int, answers: List[schemas.StudentAnswer], db: Session = Depends(database.get_db)):
+def Quiz_read_list(db: Session):
+    return db.query(models.Quiz).all()
+
+def submit_quiz(Q_id: int, answers: List[schemas.StudentAnswer], db: Session):
     score = 0
     total= len(answers)
     for ans in answers:

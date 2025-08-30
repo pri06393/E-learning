@@ -10,7 +10,7 @@ def create_quiz(quiz: schemas.QuizCreate, db: Session = Depends(database.get_db)
 
 @router.get("/")
 def list_quizzes(db: Session = Depends(database.get_db)):
-    return quiz_repo.list_quizzes(db)
+    return quiz_repo.Quiz_read_list(db)
 
 
 @router.get("/{quiz_id}", response_model=schemas.QuizRead)

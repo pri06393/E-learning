@@ -14,4 +14,4 @@ def create_course(course: schemas.Courses, db: Session= Depends(database.get_db)
 def list_courses(db: Session):
     return db.query(models.Courses).all()
 def get_course(course_id: int, db: Session):
-    return db.query(models.Courses).filter(models.Courses.Course_id == course_id).first()
+    return db.query(models.Courses).filter(models.Courses.C_id == course_id).first()

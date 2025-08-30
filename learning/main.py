@@ -8,7 +8,7 @@ from passlib.context import CryptContext
 app = FastAPI()
 from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse, Response
 from typing import List
-from learning.routers import learn, user,courses, enrollment, instructor,learn, quiz, reviews, student, user
+from learning.routers import learn, user,courses, enrollment, instructor,learn, quiz, reviews, student, user, Modules
 from fastapi.security import OAuth2PasswordBearer
 from learning import auth
 
@@ -28,6 +28,7 @@ app.include_router(user.router)
 app.include_router(instructor.router)
 app.include_router(student.router)
 app.include_router(courses.router)
+app.include_router(Modules.router)
 app.include_router(quiz.router)
 app.include_router(enrollment.router)
 app.include_router(reviews.router)

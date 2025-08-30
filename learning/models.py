@@ -29,6 +29,7 @@ class Modules(Base):
     Module_name = Column(String, unique=True, index=True)
     learning_content = Column(String,index = True)
     module_course = relationship("Courses", back_populates="course_module")
+    module_quiz = relationship("Quiz", back_populates="quiz_module")
 # class LearningContent(models.Model):
 #     __tablename__ = "Learning Content"
 #     L_id = models.AutoField(primary_key=True)
@@ -69,11 +70,11 @@ class Quiz(Base):
     __tablename__ = "Quiz"
     Q_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     Quiz_name = Column(String)
-    # M_id = Column(Integer, ForeignKey("Modules.M_id"))
+    M_id = Column(Integer, ForeignKey("Modules.M_id"))
     quiz_result = relationship("Results", back_populates="result_quiz")
     quiz_question = relationship("Question", back_populates="question_quiz")
     quiz_studentans = relationship("StudentAnswer", back_populates="studentans_quiz")
-    
+    quiz_module = relationship("Modules", back_populates="module_quiz")
 
 class Question(Base):
     __tablename__ = "Question"
