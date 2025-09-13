@@ -109,108 +109,75 @@ def unenroll_course(
     db.commit()
     return {"message": "Enrollment deleted successfully"}
 
-# @router.post("/submit/{quiz_id}")
-# def create_result(result: ResultCreate, quiz_id:int, db: Session, current_user: Password):
-#     if current_user.student_id == None:
-#         raise HTTPException(status_code=403, detail="only students allowed")
-    
-#     attempt = StudentQuizLink(student_id=current_user.student_id, quiz_id=quiz_id)
-#     db.add(attempt)
-#     db.commit()
-#     db.refresh(attempt)
-
-
-#     # quiz_id = result.student_quiz_id
-#     question_ids = []
-#     correct_options = []
-    
-#     query = db.query(Question).filter(Question.quiz_id == quiz_id)
-#     questions = query.all()
-
-#     for question in range(len(questions)):
-#         # print(type(questions[question].id))
-#         question_ids.append(questions[question].id)
-#         correct_options.append(json.loads(questions[question].question_answers))
-
-#     user_result_answer_set = check_answer_set(result.answer_set,question_ids)
-#     user_answer_set = json.dumps(user_result_answer_set)
-#     # print("user_answer_set:", user_answer_set)
-#     user_answer = {int(k): v for k, v in user_result_answer_set.items()}
-    
-#     correct_answer_set = dict(zip(question_ids, correct_options))
-#     # print(questions)
-#     # print("correct answer set: ",correct_answer_set)
-#     # print("user answer set: ",user_answer_set)
-
-#     marks  = 0
-
-#     for id in question_ids:
-#         print(id)
-#         print(correct_answer_set[id])
-#         if set(correct_answer_set[id]) == set(user_answer[id]):
-#             print(f'question {id} is correct')
-#             marks = marks + 1
-#         else:
-#             print(f'question {id} is wrong')
-
-#     result.answer_set = user_result_answer_set
-#     db_result = QuizResult(
-#         student_quiz_id=attempt.id,
-#         answer_set=json.dumps(result.answer_set),
-#         marks=marks
-#     )
-   
-#     db.add(db_result)
-#     db.commit()
-#     db.refresh(db_result)
-#     return result
 
 def create_result(result: ResultCreate, quiz_id: int, db: Session, current_user: Password):
     if current_user.student_id is None:
         raise HTTPException(status_code=403, detail="only students allowed")
 
-    # Create student attempt record
+
     attempt = StudentQuizLink(student_id=current_user.student_id, quiz_id=quiz_id)
     db.add(attempt)
     db.commit()
     db.refresh(attempt)
 
-    # Fetch all questions for the quiz
+
     questions = db.query(Question).filter(Question.quiz_id == quiz_id).all()
+    if not questions:
+        raise HTTPException(status_code=404, detail="No questions found for this quiz")
 
-    # Build correct answer set {question_id: [options]}
-    correct_answer_set = {
-        q.id: json.loads(q.question_answers) for q in questions
-    }
-    question_ids = list(correct_answer_set.keys())
 
-    # ✅ User answers are already coming as dictionary now
-    # result.answer_set should look like: {"12": [0,2], "15": [1,2]}
-    # Convert keys to int for consistency
-    print("answer:", type(result.answer_set))
-    try:
-        user_answer_set = {int(k): v for k, v in result.answer_set.items()}
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid answer_set format")
+    if isinstance(result.answer_set, str):
+        try:
+            result.answer_set = json.loads(result.answer_set)
+        except Exception:
+            raise HTTPException(status_code=400, detail="answer_set must be valid JSON")
 
-    marks = 0
-    for qid in question_ids:
-        correct = set(correct_answer_set[qid])
-        user_ans = set(user_answer_set.get(qid, []))  # empty if not answered
+    if not isinstance(result.answer_set, dict):
+        raise HTTPException(status_code=400, detail="answer_set must be a dictionary")
 
-        if correct == user_ans:
-            marks += 1
-            print(f"question {qid} is correct")
-        else:
-            print(f"question {qid} is wrong")
 
-    # Save quiz result
+    user_answer_set = {int(k): v for k, v in result.answer_set.items()}
+
+    total_marks = 0
+    detailed_results = {}
+
+    for q in questions:
+        qid = q.id
+
+        # print("q: ",json.loads(q.question_content))
+        q_c = json.loads(q.question_content)
+        # print("c: ", c["options"])
+        
+        options = q_c["options"]            
+        correct_idx = json.loads(q.question_answers)  
+        correct_strings = [options[i] for i in correct_idx]  
+
+        user_strings = user_answer_set.get(qid, [])   
+        user_strings = [str(ans).strip() for ans in user_strings]  
+
+
+        correct_set = set(correct_strings)
+        user_set = set(user_strings)
+
+        overlap = correct_set.intersection(user_set)
+        partial_score = len(overlap) / len(correct_set) if correct_set else 0
+
+        total_marks += partial_score
+        detailed_results[qid] = {
+            "content": q_c["content"],
+            "correct": correct_strings,
+            "user": user_strings,
+            "score": partial_score
+        }
+
+        print(f"Q{qid}: correct={correct_strings}, user={user_strings}, score={partial_score:.2f}")
+
+
     db_result = QuizResult(
         student_quiz_id=attempt.id,
-        answer_set=json.dumps(user_answer_set),  # Save cleaned dict
-        marks=marks
+        answer_set=json.dumps(user_answer_set),
+        marks=round(total_marks)
     )
-
     db.add(db_result)
     db.commit()
     db.refresh(db_result)
@@ -218,6 +185,7 @@ def create_result(result: ResultCreate, quiz_id: int, db: Session, current_user:
     return {
         "quiz_id": quiz_id,
         "student_id": current_user.student_id,
-        "marks": marks,
-        "answer_set": user_answer_set
+        "marks": total_marks,
+        "total_questions": len(questions),
+        "details": detailed_results
     }

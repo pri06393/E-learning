@@ -28,7 +28,7 @@ def read_my_result(current_user: Password, db: Session):
     query = db.query(StudentQuizLink.id).filter(StudentQuizLink.student_id == current_user.student_id)
     student_quiz_id = db.scalars(query).all()
 
-    query = db.query(model.Result).filter(model.Result.student_quiz_id.in_(student_quiz_id))
+    query = db.query(model.QuizResult).filter(model.QuizResult.student_quiz_id.in_(student_quiz_id))
     results = query.all()
 
     return ("results: ",results)
