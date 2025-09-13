@@ -1,0 +1,5 @@
+/fastapi
+/__pycache__
+database.db
+test.py
+**/__pycache__
