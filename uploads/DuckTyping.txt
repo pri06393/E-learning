@@ -1,0 +1,5 @@
+AttributeError, KeyError. Race condition.
+
+The question why use this approach instead of if-else - because in case of if-else we access the object multiple times whereas in case of try catch, we access only once. if the condition is satisfied, well and fine else it throws an error. this saves time and some say it's more readable.
+
+

@@ -2,7 +2,8 @@ fastapi
 uvicorn
 fastapi[standard]
 sqlmodel
-psycopg2-binary sqlalchemy
+psycopg2-binary 
+sqlalchemy
 requests
 pyjwt
 passlib[bcrypt]

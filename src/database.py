@@ -6,12 +6,14 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
-DATABASE_URL = "postgresql://postgres:argusadmin@localhost:5432/elp"
+DATABASE_URL = "postgresql://postgres:argusadmin@localhost:5432/test-database"
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 def create_db_and_tables():
+    
     SQLModel.metadata.create_all(engine)
 
 def get_db():

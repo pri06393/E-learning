@@ -4,6 +4,7 @@ from sqlalchemy import LargeBinary, Column
 
 from src.apps.instructor.model import Instructor
 from src.apps.student.model import Student
+from src.apps.content.model import Content
 from src.apps.enrollment.model import StudentCourseLink
 from src.apps.quiz.model import Quiz
 
@@ -29,10 +30,5 @@ class Module(SQLModel, table=True):
 
     quizes: list["Quiz"] = Relationship(back_populates="module")
 
-# class Content(SQLModel, table=True):
-#     id: int | None = Field(default=None, primary_key=True)
-#     binary_data: bytes = Field(sa_column=Column(LargeBinary))
 
-#     module_id: int | None = Field(foreign_key="module.id")
-#     module: Module | None = Relationship(back_populates="contents")
 
